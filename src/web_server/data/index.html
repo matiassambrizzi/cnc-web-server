@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <title> 
+        Máquina CNC
+    </title>
+
+    <style>
+        body {
+            background-color: #FFFFFF;
+        }
+        .bg-1 {
+            background-color: #1abc9c;
+            color: #ffffff;
+        }
+        .bg-file-upload {
+            background-color: #1abc9c;
+            color: #ffffff;
+        }
+    </style>
+
+</head>
+
+<body>
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+               <a class="navbar-brand" href="#">CNC</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="#">Monitoreo</a></li>
+                <li><a href="#">Datos</a></li>
+                <li><a href="#">ASDASD</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container-fluid text-center bg-success">
+        <h1> Control de la máquina CNC </h1>
+        <p> en esta página web podrá controlar la CNC</p>
+    </div>
+
+    <div class="container-fluid bg-file-upload">
+        <p>Subir archivo al ESP8266</p>
+    <form method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <!-- El Browser se encargará de enviar el POST correspondiente a una subida de un archivo-->
+            <input type="file" name="name">
+            <input type="submit" class="btn btn-info" value="Subir">
+        </div>
+    </form>
+    </div>
+</body>
+</html>

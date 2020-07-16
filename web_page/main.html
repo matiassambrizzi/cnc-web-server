@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+.red-text {
+    color: red;
+}
+
+.center {
+    text-align: center;
+}
+
+body {
+    background:#c6faf1;
+}
+
+h1 { 
+    text-align: center;
+}
+
+</style>
+
+<head>
+<title> La CNC del Pueblo </title>
+</head>
+
+<body>
+    <h1> Control de la máquina CNC </h1>
+    <h3> Simplemente toque los botones de aqui abajo</h3>
+    <div>
+        <p>Cosas que hay que hacer en esta página web</p>
+        <ul>
+            <li> Mover los motores en cualquier dirección </li>
+            <li> Inicial el ciclo de homing </li>
+            <li> Poder cargar un archivo para mandarlo a la máquin </li>
+        </ul>
+    </div>
+
+    <div>
+        <p>Ingrese la cantidad de milimetros que se quiere mover en cada eje</p>
+        <form action="/moveMotors" method="POST">
+            Eje X: <input type="text" placeholder="EjeX" name="ejex"><br><br>
+            Eje Y: <input type="text" name="ejey"><br><br>
+            Eje Z: <input type="text" name="ejez"><br><br>
+            <input type="submit" value="Enviar">
+        </form>
+    </div>
+    <br>
+
+    <a href="/xright"><button>X+</button></a>
+    <a href="/xleft"><button>X-</button></a><br><br>
+    <a href="/yright"><button>Y+</button></a>
+    <a href="/yleft"><button>Y-</button></a><br><br>
+    <a href="/yright"><button>Z+</button></a>
+    <a href="/yleft"><button>Z-</button></a>
+    
+</body>
+</html>

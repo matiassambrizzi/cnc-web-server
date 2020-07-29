@@ -1,7 +1,7 @@
 ## My makefile
 
 
-SKETCH = src/web_server.ino
+SKETCH = src/web_server/web_server.ino
 BUILD_DIR = build/
 BOARD = nodemcuv2
 UPLOAD_PORT = /dev/ttyUSB0

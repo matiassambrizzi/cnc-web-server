@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <title> 
+        Máquina CNC
+    </title>
+
+
+    <style>
+    .square:before{
+	content: "";
+	display: block;
+    }       
+    .gray {
+    background-color: lightgray;
+    }
+    .green {
+    background-color: lightgreen;
+    }
+
+    </style>
+</head>
+
+<body>
+
+<div class="container-fluid"> 
+    <div class="row">
+        <div class="col-sm-4 text-center">
+            <p>Enter code</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-4">
+            <form method="GET" action="/gcode">
+                <div class="input-group">
+                <span class="input-group-addon">:~$</span>
+                <input id="gcode" name="gcode" type="text" class="form-control" placeholder="enter gcode">
+                </div>
+            </form>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        Reply: 
+        <div class="col-xs-12 gray square">
+            <ul>
+            </ul>
+        </div>
+        <button type="button" onclick="cleanTerminal()" class="btn btn-default">clean</button>
+    </div>
+        <div class="row">
+            <div class="col-sm-4 bg-file-upload banner-content text-center">
+                <p>Subir archivo al ESP8266</p>
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <!-- El Browser se encargará de enviar el POST correspondiente a una subida de un archivo-->
+                            <div class="col-sm-6">
+                                <input type="file" name="name">
+                            </div>
+
+                            <div class="col-sm-6">
+                                <input type="submit" class="btn btn-info" value="Subir">
+                            </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <br>
+        <div class="row">
+            <div class="col-sm-4">
+                <button type="button" onclick="sendData()" class="btn btn-default">Start</button>
+            </div>
+        </div>
+</div>
+
+
+<script>
+
+function sendData()
+{
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            // Esto es para poner la respuesta del server en algun lugar de la página
+            //document.getElementById("singlebutton").innerHTML = this.responseText;
+          }
+    };
+    xhttp.open("GET", "send", true);
+    xhttp.send();
+}
+</script>
+
+
+</body>
+
+</html>

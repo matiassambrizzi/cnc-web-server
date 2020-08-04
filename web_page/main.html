@@ -1,61 +1,231 @@
 <!DOCTYPE html>
 <html>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<style>
-
-.red-text {
-    color: red;
-}
-
-.center {
-    text-align: center;
-}
-
-body {
-    background:#c6faf1;
-}
-
-h1 { 
-    text-align: center;
-}
-
-</style>
-
 <head>
-<title> La CNC del Pueblo </title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+
+    <title> 
+        Máquina CNC
+    </title>
+
+    <style>
+        body {
+            background-color: #FFFFFF;
+        }
+        .bg-1 {
+            background-color: #1abc9c;
+            color: #ffffff;
+        }
+        .bg-file-upload {
+            background-color: #1abc9c;
+            color: #000000;
+        }
+
+        .banner-content {
+	    position: relative;
+            float: left;
+            margin: 10px 5px 5px auto;
+        }
+    </style>
 </head>
 
 <body>
-    <h1> Control de la máquina CNC </h1>
-    <h3> Simplemente toque los botones de aqui abajo</h3>
-    <div>
-        <p>Cosas que hay que hacer en esta página web</p>
-        <ul>
-            <li> Mover los motores en cualquier dirección </li>
-            <li> Inicial el ciclo de homing </li>
-            <li> Poder cargar un archivo para mandarlo a la máquin </li>
-        </ul>
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+               <a class="navbar-brand" href="#">CNC</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="#">Monitoreo</a></li>
+                <li><a href="#">Datos</a></li>
+            </ul>
+            <!--
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+            </ul>
+            -->
+        </div>
+    </nav>
+
+    <div class="container-fluid text-center">
+        <div class="row">
+            <div class="col-sm-12">
+            <h1> Control de la máquina CNC </h1>
+            </div>
+        </div>
     </div>
 
-    <div>
-        <p>Ingrese la cantidad de milimetros que se quiere mover en cada eje</p>
-        <form action="/moveMotors" method="POST">
-            Eje X: <input type="text" placeholder="EjeX" name="ejex"><br><br>
-            Eje Y: <input type="text" name="ejey"><br><br>
-            Eje Z: <input type="text" name="ejez"><br><br>
-            <input type="submit" value="Enviar">
-        </form>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12 bg-file-upload banner-content">
+                <p>Subir código G</p>
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <div class="row">
+                        <!-- El Browser se encargará de enviar el POST correspondiente a una subida de un archivo-->
+                            <input type="file" name="name">
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 banner-content text-center">
+                            <input type="submit" class="btn btn-info" value="Subir">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-    <br>
-
-    <a href="/xright"><button>X+</button></a>
-    <a href="/xleft"><button>X-</button></a><br><br>
-    <a href="/yright"><button>Y+</button></a>
-    <a href="/yleft"><button>Y-</button></a><br><br>
-    <a href="/yright"><button>Z+</button></a>
-    <a href="/yleft"><button>Z-</button></a>
     
+    <!-- Botonera para mover los motres-->
+    <div>
+        <button type="button" onclick="sendData(1)" class="btn btn-default">SendStep</button>
+    </div>
+
+
+    <div class="container">
+        <div class="row">
+<div class="btn-group">
+    <button type="button" class="btn btn-primary">X Derecha</button>
+    <button type="button" class="btn btn-primary">X Izquierda</button>
+    <div class="btn-group">
+      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+      paso <span class="caret"></span></button>
+      <ul class="dropdown-menu" role="menu">
+        <li><a href="#">1 mm</a></li>
+        <li><a href="#">5 mm</a></li>
+        <li><a href="#">10 mm</a></li>
+      </ul>
+    </div>
+  </div>
+  </div>
+  <br>
+        <div class="row">
+<div class="btn-group">
+    <button type="button" class="btn btn-primary">Y Derecha</button>
+    <button type="button" class="btn btn-primary">Y Izquierda</button>
+    <div class="btn-group">
+      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+      paso <span class="caret"></span></button>
+      <ul class="dropdown-menu" role="menu">
+        <li><a href="#">1 mm</a></li>
+        <li><a href="#">5 mm</a></li>
+        <li><a href="#">10 mm</a></li>
+      </ul>
+    </div>
+  </div>
+  </div>
+  </div>
+
+
+  <h2>Posición actual de la CNC</h2>
+  <div id="chart-temperature" class="container"></div>
+
+  <h1>Lista de archivos en FS</h1>
+  <ul id="files">
+  </ul>
+
+
+<!-- Using AJAX-->
+<script>
+
+
+function getFiles()
+{
+    var xhttp = new XMLHttpRequest();
+    var lst = document.getElementById("files");
+
+    xhttp.onreadystatechange = function()
+    {
+        if (this.readyState == 4 && this.status == 200) {
+            var files = this.responseText.split(',');
+
+            for(var i = 0; i < files.length(); i++) {
+
+                var element = document.createElement("li");
+                var text = document.createTextNode(files[i]);
+                elemtList.appendChild(text);
+
+                lst.appendChild(elemtList);
+
+            }
+        }
+    };
+
+    xhttp.open("GET", "/files", true);
+    xhttp.send();
+}
+
+//setInterval(function() { getFiles(); }, 2000);
+
+
+function sendData(steps)
+{
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            // Esto es para poner la respuesta del server en algun lugar de la página
+            document.getElementById("singlebutton").innerHTML = this.responseText;
+          }
+    };
+    xhttp.open("GET", "move?right="+steps, true);
+    xhttp.send();
+}
+
+/* call getData() every 2sec*/
+//setInterval(function() { getData(); }, 2000);
+
+// Variable global charT del tipo highcharts
+var chartT = new Highcharts.Chart({
+    chart:{ renderTo : 'chart-temperature' },
+    title: { text: 'Posición X Y' },
+    series: [{
+        showInLegend: false,
+        data: []
+    }],
+    plotOptions: {
+        line: { animation: false,
+        dataLabels: { enabled: true }
+        },
+        series: { color: '#059e8a' }
+    },
+    xAxis: { type: 'Eje X mm',
+    },
+    yAxis: {
+        title: { text: 'Eje Y mm' }
+    },
+    credits: { enabled: false }
+    });
+
+
+// Esta funcion se ejecuta cada 30 segundos
+setInterval(function ( ) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+
+            var arr = (this.responseText).split(',');
+            var x = parseFloat(arr[0]);
+            var y = parseFloat(arr[1]);
+
+        if(chartT.series[0].data.length > 40) {
+            chartT.series[0].addPoint([x, y], true, true, true);
+        } else {
+            chartT.series[0].addPoint([x, y], true, false, true);
+        }
+        }
+    };
+    xhttp.open("GET", "/position", true);
+    xhttp.send(); }, 3000 ) ;
+</script>
+
 </body>
+
 </html>

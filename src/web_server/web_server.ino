@@ -2,14 +2,15 @@
 * Connecnting the ESP8622 to local newtwork
 * =========================================
 */
+#include "HardwareSerial.h"
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 // ESP file system
 #include <FS.h>
+#include <LittleFS.h>
 
 #define DEBUG
-
 
 /*
 * HTTP STATUS CODES
@@ -43,7 +44,6 @@ static const char *host = "cnc";
 ESP8266WebServer server(80);
 // Private instance of the file to upload
 static File fsUploadFile;
-
 static String buffer;
 
 
@@ -58,7 +58,11 @@ static void notFoundCallback(void);
 static void rootCallback(void);
 static void xrightCallback(void);
 static void fileUploadCallback(void);
-
+static void processMove(void);
+static void getPosition(void);
+static void getFiles(void);
+static void sendGcodeRaw(void);
+static void handleSerial(void);
 /**
 * @brief Función para comenzar la transmisión de datos por UART
 * @return Nothing
@@ -80,6 +84,14 @@ static bool serveFile(String path);
 * @return
 */
 static String getContentType(String path);
+
+/*
+* @brief Funcion para listar todos los directorios que hay en
+* en la ubicacion dir
+* @param dir ubicacion de los archivos
+* @return list of files
+*/
+static String listDirs(const char *dir);
 
 /*
 * SetUp Function
@@ -110,8 +122,15 @@ void setup()
     // Le indico al server que función tiene que ejecutar cuando alguien hacer
     // un http get en "/"
     server.on("/", HTTP_GET, rootCallback);
-    server.on("/xright", HTTP_GET, xrightCallback);
+    //server.on("/xright", HTTP_GET, xrightCallback);
     server.on("/send", HTTP_GET, sendGcodeCallback);
+    //server.on("/move", HTTP_GET, processMove);
+    //server.on("/position", HTTP_GET, getPosition);
+    server.on("/gcode", HTTP_GET, sendGcodeRaw);
+    server.on("/gcode", HTTP_POST, sendGcodeRaw);
+    server.on("/serial", HTTP_GET, handleSerial);
+//    server.on("/files", HTTP_GET, getFiles);
+
     // There is a version of server.on(uri, method, fn, _fileUploadHandler);
     server.on("/", HTTP_POST, sendCodeOk, fileUploadCallback);
     server.onNotFound(notFoundCallback);
@@ -155,6 +174,40 @@ static void sendCodeOk()
 }
 
 
+static void getPosition()
+{
+    char aux;
+    String pos;
+    //
+    // Esto me devuelve la posicion de la máquina
+    // y tego que parsearla
+    Serial.flush();
+    Serial.print("$$\n");
+
+    delay(500);
+
+    while(Serial.available()) {
+        aux = Serial.read();
+        pos += aux;
+    }
+    server.send(HTTP_OK, "text/plain", pos);
+}
+
+static void processMove()
+{
+    // TODO!!!!!
+    /*
+    String xplus = server.arg("right");
+    String xminus = server.arg("right");
+    Serial.println(steps);
+
+    if(steps == "1") {
+        Serial.print("G1X1\n");
+    }
+    */
+    server.send(HTTP_OK, "text/plain", "Something");
+}
+
 static void rootCallback(void)
 {
     if(!serveFile("/")) {
@@ -181,7 +234,7 @@ static void notFoundCallback(void)
 static void xrightCallback()
 {
 
-    Serial.print("G1X1\n");
+    Serial.print("G91G1X1\n");
     // Si estoy aca es porque alguien apreto xright
     // Redirect the client to the success page
     server.sendHeader("Location","/");
@@ -275,6 +328,7 @@ static void fileUploadCallback()
 static void sendGcodeCallback()
 {
     char aux;
+    char aux2;
     // TODO: Mandar al usuario a una página que diga Transmicion en curso
     // Dar las opciones de pausar y continuar.... Ver de poner una lista 
     // con todos los archvios de codigo que esten en el sistema de arhchivo
@@ -302,8 +356,18 @@ static void sendGcodeCallback()
         // Esto me devuelve un byte
         // Tengo que leer hasta el \n
         if((aux = gcodeFile.read()) == '\n') {
+            long time = millis();
             // Wait for the available space char
-            while(Serial.read() != '$') { yield(); }
+            Serial.print("$r\n");
+            while((aux2=Serial.read()) != '$') { 
+
+                if(millis() -  time > 3000) {
+                    time = millis();
+                    Serial.print("$r\n");
+                }
+
+                yield(); 
+            }
             Serial.print(buffer + "\n");
             buffer = "";
             yield();
@@ -315,8 +379,56 @@ static void sendGcodeCallback()
 }
 
 
+// TODO: No funciona
+static String listDirs(const char *dir)
+{
+    String list;
+
+    Dir root = LittleFS.openDir(dir);
+    // recorro los archivos que hay en dir
+    // y los guardo en un string separado por comas
+    // para luego parsear con javascript
+    Serial.println("Buscando achivo");
+    while(root.next()) {
+        Serial.println("Buscando achivo");
+        list += root.fileName();
+        Serial.println(list);
+        list += ",";
+    }
+}
 
 
+static void getFiles()
+{
+    String files = listDirs("/");
+    Serial.println(files);
+    server.send(HTTP_OK, "text/plain", files);
+}
 
 
+static void sendGcodeRaw()
+{
+    String code = server.arg("gcode");
 
+    code += "\n";
+    Serial.print(code);
+
+   server.sendHeader("Location", "/");
+   server.send(303);
+}
+
+static void handleSerial()
+{
+    String response;
+
+    while(Serial.available()) {
+        response += (char) Serial.read();    
+    }
+    
+    if(!response.isEmpty()) {
+        server.send(HTTP_OK, "text/html", response);
+        //server.sendHeader("Location", "/");
+        //server.send(303);
+    }
+    server.send(HTTP_NOT_FOUND, "text/plain", "Empty");
+}

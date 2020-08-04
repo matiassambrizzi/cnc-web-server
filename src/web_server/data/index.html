@@ -1,68 +1,145 @@
 <!DOCTYPE html>
 <html>
 <head>
-
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-
     <title> 
         Máquina CNC
     </title>
 
-    <style>
-        body {
-            background-color: #FFFFFF;
-        }
-        .bg-1 {
-            background-color: #1abc9c;
-            color: #ffffff;
-        }
-        .bg-file-upload {
-            background-color: #1abc9c;
-            color: #ffffff;
-        }
-    </style>
 
+    <style>
+    .square:before{
+	content: "";
+	display: block;
+    }       
+    .gray {
+    background-color: lightgray;
+    }
+    .green {
+    background-color: lightgreen;
+    }
+
+    </style>
 </head>
 
 <body>
-    <!-- Barra de navegación -->
-    <nav class="navbar navbar-inverse">
-        <div class="container-fluid">
-            <div class="navbar-header">
-               <a class="navbar-brand" href="#">CNC</a>
+
+<div class="container-fluid"> 
+    <div class="row">
+        <div class="col-sm-4 text-center">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-4">
+            <form method="GET" id="myForm" onsubmit="return ajaxgo()">
+                <div class="input-group">
+                <span class="input-group-addon">:~$</span>
+                <input id="gcode" name="gcode" type="text" class="form-control" placeholder="enter gcode">
+                </div>
+            </form>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        Respuesta: 
+        <div class="col-xs-12 gray square">
+            <ul id="terminal">
+            </ul>
+        </div>
+        <button type="button" onclick="cleanTerminal()" class="btn btn-default">Limpiar</button>
+    </div>
+        <div class="row">
+            <div class="col-sm-4 bg-file-upload banner-content text-center">
+                <p>Subir archivo al ESP8266</p>
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <!-- El Browser se encargará de enviar el POST correspondiente a una subida de un archivo-->
+                            <div class="col-sm-6">
+                                <input type="file" name="name">
+                            </div>
+
+                            <div class="col-sm-6">
+                                <input type="submit" class="btn btn-info" value="Subir">
+                            </div>
+                    </div>
+                </form>
             </div>
-            <ul class="nav navbar-nav">
-                <li class="active"><a href="#">Home</a></li>
-                <li><a href="#">Monitoreo</a></li>
-                <li><a href="#">Datos</a></li>
-                <li><a href="#">ASDASD</a></li>
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-                <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-            </ul>
         </div>
-    </nav>
 
-    <div class="container-fluid text-center bg-success">
-        <h1> Control de la máquina CNC </h1>
-        <p> en esta página web podrá controlar la CNC</p>
-    </div>
-
-    <div class="container-fluid bg-file-upload">
-        <p>Subir archivo al ESP8266</p>
-    <form method="POST" enctype="multipart/form-data">
-        <div class="form-group">
-            <!-- El Browser se encargará de enviar el POST correspondiente a una subida de un archivo-->
-            <input type="file" name="name">
-            <input type="submit" class="btn btn-info" value="Subir">
+        <br>
+        <div class="row">
+            <div class="col-sm-4">
+                <button type="button" onclick="sendData()" class="btn btn-default">Empezar</button>
+            </div>
         </div>
-    </form>
-    </div>
+</div>
+
+
+<script>
+
+function cleanTerminal()
+{
+    const myNode = document.getElementById("terminal");
+    myNode.innerHTML = '';
+}
+
+
+function sendData()
+{
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            // Esto es para poner la respuesta del server en algun lugar de la página
+            //document.getElementById("singlebutton").innerHTML = this.responseText;
+          }
+    };
+    xhttp.open("GET", "send", true);
+    xhttp.send();
+}
+
+
+function getData()
+{
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function()
+    {
+        if (this.readyState == 4 && this.status == 200) {
+            var rta = this.responseText;
+            var node = document.createElement("LI");                 // Create a <li> node
+            var textnode = document.createTextNode(rta);         // Create a text node
+            node.appendChild(textnode);                              // Append the text to <li>
+            document.getElementById("terminal").appendChild(node);     // Append <li> to <ul> with
+        }
+    };
+
+    xhttp.open("GET","/serial", true);
+    xhttp.send();
+}
+
+setInterval(function() { getData(); }, 1000);
+
+function ajaxgo(){
+  // (A) GET FORM DATA
+  var data = new FormData();
+  data.append("gcode", document.getElementById("gcode").value);
+ 
+  // (B) AJAX
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", "/gcode");
+  xhr.send(data);
+ 
+  return false;
+}
+</script>
+
+
 </body>
+
 </html>

@@ -32,13 +32,12 @@
 <div class="container-fluid"> 
     <div class="row">
         <div class="col-sm-4 text-center">
-            <p>Enter code</p>
         </div>
     </div>
 
     <div class="row">
         <div class="col-sm-4">
-            <form method="GET" action="/gcode">
+            <form method="GET" id="myForm" onsubmit="return ajaxgo()">
                 <div class="input-group">
                 <span class="input-group-addon">:~$</span>
                 <input id="gcode" name="gcode" type="text" class="form-control" placeholder="enter gcode">
@@ -48,12 +47,12 @@
     </div>
     <br>
     <div class="row">
-        Reply: 
+        Respuesta: 
         <div class="col-xs-12 gray square">
-            <ul>
+            <ul id="terminal">
             </ul>
         </div>
-        <button type="button" onclick="cleanTerminal()" class="btn btn-default">clean</button>
+        <button type="button" onclick="cleanTerminal()" class="btn btn-default">Limpiar</button>
     </div>
         <div class="row">
             <div class="col-sm-4 bg-file-upload banner-content text-center">
@@ -76,13 +75,20 @@
         <br>
         <div class="row">
             <div class="col-sm-4">
-                <button type="button" onclick="sendData()" class="btn btn-default">Start</button>
+                <button type="button" onclick="sendData()" class="btn btn-default">Empezar</button>
             </div>
         </div>
 </div>
 
 
 <script>
+
+function cleanTerminal()
+{
+    const myNode = document.getElementById("terminal");
+    myNode.innerHTML = '';
+}
+
 
 function sendData()
 {
@@ -95,6 +101,41 @@ function sendData()
     };
     xhttp.open("GET", "send", true);
     xhttp.send();
+}
+
+
+function getData()
+{
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onreadystatechange = function()
+    {
+        if (this.readyState == 4 && this.status == 200) {
+            var rta = this.responseText;
+            var node = document.createElement("LI");                 // Create a <li> node
+            var textnode = document.createTextNode(rta);         // Create a text node
+            node.appendChild(textnode);                              // Append the text to <li>
+            document.getElementById("terminal").appendChild(node);     // Append <li> to <ul> with
+        }
+    };
+
+    xhttp.open("GET","/serial", true);
+    xhttp.send();
+}
+
+setInterval(function() { getData(); }, 1000);
+
+function ajaxgo(){
+  // (A) GET FORM DATA
+  var data = new FormData();
+  data.append("gcode", document.getElementById("gcode").value);
+ 
+  // (B) AJAX
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", "/gcode");
+  xhr.send(data);
+ 
+  return false;
 }
 </script>
 

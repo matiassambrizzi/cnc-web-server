@@ -33,8 +33,8 @@ typedef enum {
 */
 
 // Hacer esto configurable en config.h
-static const char *ssid = "Fibertel WiFi679 2.4GHz";
-static const char *pswrd = "01418509537";
+static const char *ssid =  "******************";
+static const char *pswrd = "*****************";
 // Hacer esto configurable en config.h
 const unsigned long baudrate = 115200;
 // Nombre para el DNS
